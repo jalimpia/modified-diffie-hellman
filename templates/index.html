@@ -1,0 +1,418 @@
+<head>
+<title>Modified Diffie–Hellman Algorithm Simulator</title>
+
+<style>
+.input, label, input{
+  margin:10px;
+  padding:2px;
+}
+
+textarea{width:90%}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+  margin-bottom:30px;
+}
+
+</style>
+
+</head>
+<h1>Modified Diffie–Hellman Algorithm Simulator</h1>
+
+<div class="row">
+  <div class="column">
+    <h4>Client</h4>
+
+    <label>Keysize:</label>
+    <select class="input" id="keysize">
+      <option>128</option>
+      <option>256</option>
+      <option>512</option>
+      <option>1024</option>
+      <option>2048</option>
+      <option>4096</option>
+    </select><br>
+
+    <label>Client P-value:</label><br>
+    <textarea class="input" id="p_value_1" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="genKey('p_value','mult')" value="Generate P-value">
+    Execution time: (<span id="p_value_time"></span>)<br>
+
+    <label>Pn value: (P*2)</label><br>
+    <textarea class="input" id="p_value_2" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="$('#pnvalue_server').val($('#p_value_2').val());$('#pvalue_server').val($('#p_value_1').val())" value="Send Pn-value to Server"><br>
+
+    <label>Client Qn-value:</label><br>
+    <textarea class="input" id="qnvalue_client" rows="12" cols="80"></textarea><br>
+
+    <label>Client Q-value:(Qn-P)</label><br>
+    <textarea class="input" id="qvalue_client" rows="12" cols="80"></textarea><br>
+
+    <label>Private Key A</label><br>
+    <textarea class="input" id="pK_value_A_1" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="genKey('pK_value_A','none')" value="Generate Private Key A">
+    Execution time: (<span id="pK_value_A_time"></span>)<br>
+
+    <label>Public Key PubA: (Q ^ A % P)</label><br>
+    <textarea class="input" id="public_key_A" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="genPubKey($('#qvalue_client').val(),$('#pK_value_A_1').val(),$('#p_value_1').val(),'public_key_A')" value="Generate Public Key A"><br>
+    Execution time: (<span id="public_key_A_time"></span>)<br>
+
+    <label>Shared Key A (PubB ^ A % P)</label><br>
+    <textarea class="input" id="shared_key_A" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="genPubKey($('#public_key_B').val(),$('#pK_value_A_1').val(),$('#p_value_1').val(),'shared_key_A')" value="Generate Shared Key A"><br>
+    Execution time: (<span id="shared_key_A_time"></span>)<br>
+
+  </div>
+  <div class="column">
+    <h4 style="margin-top:65px;">Server</h4>
+    <label>Server Pn-value:</label><br>
+    <textarea class="input" id="pnvalue_server" rows="12" cols="80"></textarea>
+
+    <label>Server P-value: (Pn/2)</label><br>
+    <textarea class="input" id="pvalue_server" rows="12" cols="80"></textarea>
+
+    <label>Server Q-value:</label><br>
+    <textarea class="input" id="qvalue_1" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="genKey('qvalue','div')" value="Generate Q-value">
+    Execution time: (<span id="qvalue_time"></span>)<br>
+
+    <label>Server Qn: (Q+P)</label><br>
+    <textarea class="input" id="qvalue_2" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="$('#qnvalue_client').val($('#qvalue_2').val());$('#qvalue_client').val($('#qvalue_1').val());" value="Send Qn-value to Client"><br>
+
+    <label>Private Key B</label><br>
+    <textarea class="input" id="pK_value_B_1" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="genKey('pK_value_B','none')" value="Generate Private Key B">
+    Execution time: (<span id="pK_value_B_time"></span>)<br>
+
+    <label>Public Key PubB: (Q ^ B % P)</label><br>
+    <textarea class="input" id="public_key_B" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="genPubKey($('#qvalue_client').val(),$('#pK_value_B_1').val(),$('#p_value_1').val(),'public_key_B')" value="Generate Public Key B"><br>
+    Execution time: (<span id="public_key_B_time"></span>)<br>
+
+    <label>Share Key B (PubA ^ B % P)</label><br>
+    <textarea class="input" id="shared_key_B" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="genPubKey($('#public_key_A').val(),$('#pK_value_B_1').val(),$('#p_value_1').val(),'shared_key_B')" value="Generate Shared Key B"><br>
+    Execution time: (<span id="shared_key_B_time"></span>)<br>
+
+  </div>
+<br>
+</div>
+<br><br>
+<p style="text-align:center;">
+<button type="button" name="button" style="padding:15px;" onclick="compare()"><b>Compare Keys</b></button>
+</p>
+<hr>
+
+<div class="row">
+  <div class="column">
+    <h4>Client</h4>
+    <label>RSA Public Key</label><br>
+    <textarea class="input" id="client_rsa_public_key" rows="12" cols="80"></textarea><br>
+    <label>N value</label><br>
+    <textarea class="input" id="client_rsa_n_value" rows="12" cols="80"></textarea><br>
+    <label>Message</label><br>
+    <textarea class="input" id="client_message" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="if($('#client_message').val()==''){alert('Enter message')}else{encrypt()}" value="Ecrypt Message"><br>
+    <label>Ciphertext</label><br>
+    <textarea class="input" id="encrpted_message" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="$('#server_encrpted_message').val($('#encrpted_message').val())" value="Send to Server"><br>
+  </div>
+
+  <div class="column">
+    <h4>Server</h4>
+    <input style="float:right" type="button" onclick="generateRSAKeys($('#shared_key_B').val(),$('#pK_value_B_1').val(),$('#keysize').val())" value="Generate RSA Keys"><br>
+    <label>RSA Public Key</label><br>
+    <textarea class="input" id="rsa_public_key" rows="12" cols="80"></textarea><br>
+    <label>RSA Private Key</label><br>
+    <textarea class="input" id="rsa_private_key" rows="12" cols="80"></textarea><br>
+    <label>N value</label><br>
+    <textarea class="input" id="rsa_n_value" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="$('#client_rsa_public_key').val($('#rsa_public_key').val());$('#client_rsa_n_value').val($('#rsa_n_value').val())" value="Send public key to client"><br>
+    <br>
+    <label>Ciphertext</label><br>
+    <textarea class="input" id="server_encrpted_message" rows="12" cols="80"></textarea><br>
+    <input type="button" onclick="decrypt()" value="Decrypt Message"><br>
+    <textarea class="input" id="decrpted_message" rows="12" cols="80"></textarea><br>
+  </div>
+
+</div>
+<hr>
+<div class="row">
+  <h2><center>Original Diffie–Hellman key exchange attack</center></h2>
+  <div class="column">
+    <h3>Client</h3>
+    <label>P-value</label><br>
+    <input type="text" id="prime_p" placeholder="P value"><input type="button" onclick="$('#prime_p').val(randomList(100000, 999999)); $('#prime_g').val(randomList(100000, 999999));" value="Generate P and G"><br>
+    <label>G-value</label><br>
+    <input type="text" id="prime_g" placeholder="G value"> <input type="button" onclick="$('#s_prime_p').val($('#prime_p').val());$('#s_prime_g').val($('#prime_g').val()); $('#e_prime_p').val($('#prime_p').val()); $('#e_prime_g').val($('#prime_g').val());" value="Send to Server"><br>
+    <hr>
+    <label>Client Random Private Key (PrivKeyA)</label><br>
+    <input type="text" id="c_private_key" placeholder="Client Private Key">
+    <input type="button" onclick="$('#c_private_key').val(randomList(100000, 999999));" value="Generate Client Private Key">
+    <hr>
+    <br>
+    <label>Client Public Key = (G**PrivKeyA)%P</label><br>
+    <input type="text" id="c_public_key" placeholder="Client Public Key">
+    <input type="button" onclick="$('#c_public_key').val(expmod($('#prime_g').val(), $('#c_private_key').val(), $('#prime_p').val()))" value="Generate Client Public Key">
+    <br>
+    <label>Server Public Key = (PubB)</label><br>
+    <input type="text" id="c_server_public_key" placeholder="Server Public Key">
+    <input type="button" onclick="$('#s_client_public_key').val($('#c_public_key').val()); $('#e_public_key').val($('#c_public_key').val())" value="Send to Server">
+    <br>
+    <hr>
+
+    <label>Shared Key A = (PubB**PrivKeyA)%P</label><br>
+    <input type="text" id="c_shared_key" placeholder="Client Shared Key"><br>
+    <input type="button" onclick="$('#c_shared_key').val(expmod($('#c_server_public_key').val(), $('#c_private_key').val(), $('#prime_p').val()))" value="Calculate Client Shared Key">
+    <br>
+
+  </div>
+
+  <div class="column">
+    <h3>Server</h3>
+    <label>P-value</label><br>
+    <input type="text" id="s_prime_p" placeholder="P value"><br>
+    <label>G-value</label><br>
+    <input type="text" id="s_prime_g" placeholder="G value"><br>
+    <hr>
+    <label>Server Random Private Key (PrivKeyB)</label><br>
+    <input type="text" id="s_private_key" placeholder="Server Private Key">
+    <input type="button" onclick="$('#s_private_key').val(randomList(100000, 999999));" value="Generate Server Private Key">
+    <hr>
+    <br>
+    <label>Server Public Key = (G**PrivKeyB)%P</label><br>
+    <input type="text" id="s_public_key" placeholder="Server Public Key">
+    <input type="button" onclick="$('#s_public_key').val(expmod($('#prime_g').val(), $('#s_private_key').val(), $('#prime_p').val()))" value="Generate Server Public Key">
+    <br>
+    <label>Client Public Key = (PubA)</label><br>
+    <input type="text" id="s_client_public_key" placeholder="Client Public Key">
+    <input type="button" onclick="$('#c_server_public_key').val($('#s_public_key').val())" value="Send to Client">
+    <hr>
+
+    <label>Shared Key A = (PubA**PrivKeyA)%P</label><br>
+    <input type="text" id="s_shared_key" placeholder="Server Shared Key"><br>
+    <input type="button" onclick="$('#s_shared_key').val(expmod($('#s_client_public_key').val(), $('#s_private_key').val(), $('#prime_p').val()))" value="Calculate Server Shared Key">
+    <br>
+
+  </div>
+
+  <div style="width:100%">
+    <hr>
+    <div class="column">
+      <center>
+      <h3>Eavesdropper</h3>
+      <label>Obtained P-value: </label>
+      <input type="text" id="e_prime_p" placeholder="P value"><br>
+      <label>Obtained G-value: </label>
+      <input type="text" id="e_prime_g" placeholder="G value"><br>
+
+      <label>Obtain Public Key A (PubA): </label>
+      <input type="text" id="e_public_key" placeholder="Public Key"><br>
+
+      <label>Shared Key A = (PubA**?)%P</label><br>
+      <input style="padding:10px;font-size:20px;color:green;font-weight:400;text-align:center;" type="text" id="e_shared_key" placeholder="Shared Key"><br>
+      <input style="padding:15px;cursor:pointer;" type="button" onclick="bruteForce($('#s_shared_key').val(),$('#e_public_key').val(),$('#e_prime_p').val())" value="Start Brute Force">
+      </center>
+    </div>
+    <div class="column">
+      <h4>Brute Force Logs</h4>
+      <span id="bf_time"></span>
+
+      <table  border=1 style="width:80%">
+        <thead>
+          <tr>
+            <th style="width:50px">#</th>
+            <th>Key</th>
+          </tr>
+        </thead>
+        <tbody id="logs">
+        </tbody>
+      </table>
+
+    </div>
+  <div>
+
+
+</div>
+
+
+<script type="text/javascript">
+function bruteForce(sharedKey, base, mod){
+
+  if(sharedKey==''){
+    return false;
+  }
+
+  var t0 = performance.now();
+
+  var flag=0;
+  var c=0;
+  for(var i = 100000; i < 999999; i++) {
+      if(isPrime2(i)==true){
+        var key = expmod(base,i,mod);
+        console.log(key);
+        $('#logs')
+        .append(`
+        <tr>
+          <td>${c}</td>
+          <td>${key}</td>
+        </tr>`);
+        if(key==sharedKey){
+          $('#e_shared_key').val(key);
+          alert("Bruteforce successful the shared key is: "+key);
+          flag=1;
+
+          break;
+        }
+        c++;
+      }
+
+  }
+  if(flag==0){
+    alert("Bruteforce failed!");
+  }
+  var t1 = performance.now();
+  $('#bf_time').html(`Brute force time: ${(t1-t0).toFixed(2)} milliseconds.`)
+}
+
+
+
+
+
+
+
+
+  // function getExp(a, b, mod) {
+  //     var result BigInt(a) ** BigInt(b);
+  // }
+  function expmod( base, exp, mod){
+    base = parseInt(base);
+    exp = parseInt(exp);
+    mod = parseInt(mod);
+    if (exp == 0) return 1;
+    if (exp % 2 == 0){
+      return Math.pow( expmod( base, (exp / 2), mod), 2) % mod;
+    }
+    else {
+      return (base * expmod( base, (exp - 1), mod)) % mod;
+    }
+  }
+
+  //console.log(randomList(100000, 999999));
+  function randomList(min, max) {
+    var list = [];
+    for(var i = min; i < max; i++) {
+        var n = Math.floor(min + Math.random() * (max - min))
+        if(isPrime2(n)==true){
+          list.push(n);
+        }
+    }
+    return list[Math.floor(list.length/2)];
+  }
+
+  function isPrime2(n) {
+   if (isNaN(n) || !isFinite(n) || n%1 || n<2) return false;
+   if (n%2==0) return (n==2);
+   var m=Math.sqrt(n);
+   for (var i=3;i<=m;i+=2) {
+    if (n%i==0) return false;
+   }
+   return true;
+  }
+
+
+
+
+function compare(){
+  if($('#shared_key_A').val()=='' || $('#shared_key_B').val()==''){
+    return false;
+  }
+  if($('#shared_key_A').val()==$('#shared_key_B').val()){
+    alert("Successful key exchange!");
+  }else{
+    alert("Key does not match!");
+  }
+}
+
+
+function genKey(id,operation){
+  var keysize = $('#keysize').val();
+  if(keysize==''){alert('Provide keysize value!'); return false}
+  console.log(keysize);
+  $.ajax({
+    url:'/'+keysize+'/'+operation,
+    data:null
+  }).done(function(data){
+    console.log(data);
+    $('#'+id+'_1').val(data.result1);
+    $('#'+id+'_2').val(data.result2);
+    $('#'+id+'_time').html(data.time+'s');
+  });
+}
+
+function genPubKey(A, B, C, id){
+  $.ajax({
+    url:'/'+A+'/'+B+'/'+C,
+    data:null
+  }).done(function(data){
+    console.log(data);
+    $('#'+id).val(data.result);
+    $('#'+id+'_time').html(data.time+'s');
+  });
+}
+
+function generateRSAKeys(P,Q,size){
+  $.ajax({
+    url:'/rsa/'+P+'/'+Q+'/'+size,
+    data:null
+  }).done(function(data){
+    console.log(data);
+    $('#rsa_public_key').html(data.E);
+    $('#rsa_private_key').html(data.D);
+    $('#rsa_n_value').html(data.N);
+  });
+}
+
+function encrypt(E,N,M){
+  var E= $('#client_rsa_public_key').val();
+  var N= $('#client_rsa_n_value').val();
+  var M= $('#client_message').val();
+  $.ajax({
+    url:'/encrypt/'+E+'/'+N+'/'+M,
+    data:null
+  }).done(function(data){
+    console.log(data);
+    $('#encrpted_message').html(data.C);
+    // $('#rsa_private_key').html(data.D);
+    // $('#rsa_n_value').html(data.N);
+  });
+}
+
+function decrypt(D,N,M){
+  var D= $('#rsa_private_key').val();
+  var N= $('#rsa_n_value').val();
+  var C= $('#server_encrpted_message').val();
+  $.ajax({
+    url:'/decrypt/'+D+'/'+N+'/'+C,
+    data:null
+  }).done(function(data){
+    console.log(data);
+    $('#decrpted_message').html(data.M);
+    // $('#rsa_private_key').html(data.D);
+    // $('#rsa_n_value').html(data.N);
+  });
+}
+</script>
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.0.js" integrity="sha256-r/AaFHrszJtwpe+tHyNi/XCfMxYpbsRg2Uqn0x3s2zc=" crossorigin="anonymous"></script>
