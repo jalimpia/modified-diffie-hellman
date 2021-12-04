@@ -40,12 +40,15 @@ textarea{width:90%}
       <option>4096</option>
     </select><br>
 
+    <label>Token length:</label>
+    <input readonly id="token_length" name="token_length" type="number" placeholder="Token length"><br>
+
     <label>Client P-value:</label><br>
     <textarea class="input" id="p_value_1" rows="12" cols="80"></textarea><br>
     <input type="button" onclick="genKey('p_value','mult')" value="Generate P-value">
     Execution time: (<span id="p_value_time"></span>)<br>
 
-    <label>Pn value: (P*2)</label><br>
+    <label>Pn value: P * <span class="token"></span></label><br>
     <textarea class="input" id="p_value_2" rows="12" cols="80"></textarea><br>
     <input type="button" onclick="$('#pnvalue_server').val($('#p_value_2').val());$('#pvalue_server').val($('#p_value_1').val())" value="Send Pn-value to Server"><br>
 
@@ -76,7 +79,7 @@ textarea{width:90%}
     <label>Server Pn-value:</label><br>
     <textarea class="input" id="pnvalue_server" rows="12" cols="80"></textarea>
 
-    <label>Server P-value: (Pn/2)</label><br>
+    <label>Server P-value: Pn / <span class="token"></span></label><br>
     <textarea class="input" id="pvalue_server" rows="12" cols="80"></textarea>
 
     <label>Server Q-value:</label><br>
@@ -356,6 +359,8 @@ function genKey(id,operation){
     $('#'+id+'_1').val(data.result1);
     $('#'+id+'_2').val(data.result2);
     $('#'+id+'_time').html(data.time+'s');
+    $('.token').html(data.token);
+    $('#token_length').val(data.token_length);
   });
 }
 

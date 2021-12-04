@@ -3,11 +3,15 @@ import rabinMiller as rm
 from flask import jsonify
 import datetime as dt
 import rsa
+import secrets
+from random import randrange
 
 
 #Modified Diffie-Hellman
-
 app = Flask(__name__)
+
+#Default Token Lengtg Range
+token_range = 100
 
 #This will convert bytes data object to int
 def toInt(data):
@@ -16,6 +20,9 @@ def toInt(data):
 def toByte(data):
     return data.to_bytes(4096, 'big')
 
+def generate_token(n):
+    result = secrets.token_bytes(n)
+    return int.from_bytes(result,"big")
 
 #Load Records from database
 @app.route('/')
@@ -24,16 +31,19 @@ def index():
 
 @app.route('/<keysize>/<operation>')
 def generateKey(keysize,operation):
+    #Random Token Length
+    token_len = randrange(token_range)
+    token = generate_token(11)
     start_time = dt.datetime.now()
     result1 = rm.generateLargePrime(int(keysize))
     if operation=='mult':
-        result2=str((result1*2))
+        result2=str((result1 * token))
     if operation=='div':
-        result2=str((result1//2))
+        result2=str((result1 // token))
     if operation=='none':
         result2=None
     est = dt.datetime.now() - start_time
-    return jsonify(result1=str(result1), result2=result2, time=str(est.total_seconds()))
+    return jsonify(result1=str(result1), result2=result2, time=str(est.total_seconds()), token = token, token_length=token_len)
 
 @app.route('/<A>/<B>/<C>')
 def generatePublicKey(A,B,C):
