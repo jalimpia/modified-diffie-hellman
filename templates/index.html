@@ -43,19 +43,24 @@ textarea{width:90%}
     <label>Token length:</label>
     <input readonly id="token_length" name="token_length" type="number" placeholder="Token length"><br>
 
+    <label>Generated Token:</label>
+    <textarea class="input" rows="12" cols="80" id="urlsafe_token" name="urlsafe_token" placeholder="GeneratedToken" readonly></textarea><br>
+
+
     <label>Client P-value:</label><br>
     <textarea class="input" id="p_value_1" rows="12" cols="80"></textarea><br>
+    
     <input type="button" onclick="genKey('p_value','mult')" value="Generate P-value">
     Execution time: (<span id="p_value_time"></span>)<br>
 
-    <label>Pn value: P * <span class="token"></span></label><br>
+    <label>Q value:  <span class="token"></span></label><br>
     <textarea class="input" id="p_value_2" rows="12" cols="80"></textarea><br>
     <input type="button" onclick="$('#pnvalue_server').val($('#p_value_2').val());$('#pvalue_server').val($('#p_value_1').val())" value="Send Pn-value to Server"><br>
 
     <label>Client Qn-value:</label><br>
     <textarea class="input" id="qnvalue_client" rows="12" cols="80"></textarea><br>
 
-    <label>Client Q-value:(Qn-P)</label><br>
+    <label>Client Q-value:</label><br>
     <textarea class="input" id="qvalue_client" rows="12" cols="80"></textarea><br>
 
     <label>Private Key A</label><br>
@@ -76,10 +81,10 @@ textarea{width:90%}
   </div>
   <div class="column">
     <h4 style="margin-top:65px;">Server</h4>
-    <label>Server Pn-value:</label><br>
+  <label>Server Q-value:</label><br>
     <textarea class="input" id="pnvalue_server" rows="12" cols="80"></textarea>
 
-    <label>Server P-value: Pn / <span class="token"></span></label><br>
+    <label>Server P-value:<span class="token"></span></label><br>
     <textarea class="input" id="pvalue_server" rows="12" cols="80"></textarea>
 
     <label>Server Q-value:</label><br>
@@ -87,7 +92,7 @@ textarea{width:90%}
     <input type="button" onclick="genKey('qvalue','div')" value="Generate Q-value">
     Execution time: (<span id="qvalue_time"></span>)<br>
 
-    <label>Server Qn: (Q+P)</label><br>
+    <label>Server Qn:</label><br>
     <textarea class="input" id="qvalue_2" rows="12" cols="80"></textarea><br>
     <input type="button" onclick="$('#qnvalue_client').val($('#qvalue_2').val());$('#qvalue_client').val($('#qvalue_1').val());" value="Send Qn-value to Client"><br>
 
@@ -361,6 +366,7 @@ function genKey(id,operation){
     $('#'+id+'_time').html(data.time+'s');
     $('.token').html(data.token);
     $('#token_length').val(data.token_length);
+    $('#urlsafe_token').val(data.urlsafe_token);
   });
 }
 

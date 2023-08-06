@@ -10,7 +10,7 @@ from random import randrange
 #Modified Diffie-Hellman
 app = Flask(__name__)
 
-#Default Token Lengtg Range
+#Default Token Length Range
 token_range = 100
 
 #This will convert bytes data object to int
@@ -24,6 +24,10 @@ def generate_token(n):
     result = secrets.token_bytes(n)
     return int.from_bytes(result,"big")
 
+def generate_urlsafe_token(n):
+    result = secrets.token_urlsafe(n)
+    return result
+
 #Load Records from database
 @app.route('/')
 def index():
@@ -32,8 +36,9 @@ def index():
 @app.route('/<keysize>/<operation>')
 def generateKey(keysize,operation):
     #Random Token Length
-    token_len = randrange(token_range)
-    token = generate_token(11)
+    token_len = randrange(50, token_range)
+    token = generate_token(token_len)
+    urlsafe_token = generate_urlsafe_token(token_len)
     start_time = dt.datetime.now()
     result1 = rm.generateLargePrime(int(keysize))
     if operation=='mult':
@@ -43,7 +48,7 @@ def generateKey(keysize,operation):
     if operation=='none':
         result2=None
     est = dt.datetime.now() - start_time
-    return jsonify(result1=str(result1), result2=result2, time=str(est.total_seconds()), token = token, token_length=token_len)
+    return jsonify(result1=str(result1), result2=result2, time=str(est.total_seconds()), token = token, token_length=token_len, urlsafe_token=urlsafe_token)
 
 @app.route('/<A>/<B>/<C>')
 def generatePublicKey(A,B,C):
