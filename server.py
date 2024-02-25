@@ -44,7 +44,7 @@ def generateKey(keysize,operation):
     if operation=='mult':
         result2=str((result1 * token))
     if operation=='div':
-        result2=str((result1 // token))
+        result2=str((result1 / token))
     if operation=='none':
         result2=None
     est = dt.datetime.now() - start_time
